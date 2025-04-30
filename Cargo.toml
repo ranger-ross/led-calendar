@@ -7,4 +7,6 @@ edition = "2021"
 anyhow = "1.0.98"
 chrono = "0.4.41"
 google-calendar3 = "6.0.0"
-tokio = { version = "1.44.2", features = ["full"] }
+tokio = { version = "1.44", features = ["full"] }
+badgemagic = { git = "https://github.com/fossasia/badgemagic-rs", rev = "44222843", features = ["embedded-graphics"] }
+humantime = "2.2.0"

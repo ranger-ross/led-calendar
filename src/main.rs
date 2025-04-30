@@ -1,8 +1,17 @@
 use anyhow::Result;
+use badgemagic::{
+    embedded_graphics::{
+        self, geometry::Point, mono_font::MonoTextStyle, pixelcolor::BinaryColor, text::Text,
+    },
+    protocol::{Mode, PayloadBuffer, Style},
+    usb_hid::Device,
+};
 use calendar3::{hyper_rustls, hyper_util, yup_oauth2, CalendarHub};
 use chrono::{DateTime, Utc};
 use google_calendar3::{
-    self as calendar3, hyper_rustls::HttpsConnector,
+    self as calendar3,
+    api::{Event, EventDateTime},
+    hyper_rustls::HttpsConnector,
     hyper_util::client::legacy::connect::HttpConnector,
 };
 
@@ -15,19 +24,30 @@ async fn main() -> Result<()> {
 
     let result = hub
         .events()
-        .list("")
+        .list("rosssullivan101@gmail.com")
         .time_min(now)
         .time_max(end)
         .single_events(true)
         .doit()
         .await?;
 
+    let mut payload = PayloadBuffer::new();
+
     for event in result.1.items.unwrap_or_default() {
         println!(
             "EVENT => {:?}, {:?}, {:?}",
             event.summary, event.start, event.recurring_event_id
         );
+
+        let Some(message) = format_event_message(event) else {
+            println!("Skipping event due to missing fields");
+            continue;
+        };
+
+        add_message(&mut payload, &message);
     }
+
+    Device::single()?.write(payload)?;
 
     Ok(())
 }
@@ -53,4 +73,50 @@ async fn create_client() -> Result<CalendarHub<HttpsConnector<HttpConnector>>> {
     let hub = CalendarHub::new(client, auth);
 
     return Ok(hub);
+}
+
+fn format_event_message(event: Event) -> Option<String> {
+    let Event {
+        summary: Some(title),
+        start: Some(EventDateTime {
+            date_time: Some(time),
+            ..
+        }),
+        ..
+    } = event
+    else {
+        return None;
+    };
+
+    let now = Utc::now();
+    let duration = time.signed_duration_since(now).to_std().ok()?;
+    let formatted_date = {
+        let fd = humantime::format_duration(duration);
+        let d = fd.to_string();
+        // trim off everything less than hrs
+        // TODO: handle the case < 1hr remaining
+        if let Some((prefix, _)) = d.split_once("h") {
+            format!("{}h", prefix)
+        } else {
+            d
+        }
+    };
+
+    let message = format!("{title} ({})", formatted_date.to_string());
+
+    return Some(message);
+}
+
+fn add_message(payload: &mut PayloadBuffer, message: &str) {
+    payload.add_message_drawable(
+        Style::default().mode(Mode::Left),
+        &Text::new(
+            &message,
+            Point::new(0, 7),
+            MonoTextStyle::new(
+                &embedded_graphics::mono_font::iso_8859_1::FONT_4X6,
+                BinaryColor::On,
+            ),
+        ),
+    );
 }
