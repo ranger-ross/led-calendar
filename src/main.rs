@@ -1,3 +1,5 @@
+use core::time;
+
 use anyhow::Result;
 use badgemagic::{
     embedded_graphics::{
@@ -34,8 +36,8 @@ async fn main() -> Result<()> {
             event.summary, event.start, event.recurring_event_id
         );
 
-        let Some(message) = format_event_message(event) else {
-            println!("Skipping event due to missing fields");
+        let Some(message) = format_event_message(&event) else {
+            println!("Skipping event due to missing fields :: {event:#?}");
             continue;
         };
 
@@ -73,12 +75,11 @@ async fn fetch_events(
     return Ok(events);
 }
 
-fn format_event_message(event: Event) -> Option<String> {
+fn format_event_message(event: &Event) -> Option<String> {
     let Event {
         summary: Some(title),
         start: Some(EventDateTime {
-            date_time: Some(time),
-            ..
+            date_time, date, ..
         }),
         ..
     } = event
@@ -86,13 +87,23 @@ fn format_event_message(event: Event) -> Option<String> {
         return None;
     };
 
-    let formatted_date = {
-        let a = time.format("%B %d, %I:%M %p");
-        a.to_string()
+    let message = if let Some(time) = date_time {
+        let formatted_date = {
+            let a = time.format("%B %d, %I:%M %p");
+            a.to_string()
+        };
+
+        format!("{title} -- {}", formatted_date.to_string())
+    } else if let Some(date) = date {
+        let formatted_date = {
+            let a = date.format("%B %d");
+            a.to_string()
+        };
+
+        format!("{title} -- {}", formatted_date.to_string())
+    } else {
+        title.to_string()
     };
-
-    let message = format!("{title} @ {}", formatted_date.to_string());
-
     return Some(message);
 }
 
@@ -101,9 +112,9 @@ fn add_message(payload: &mut PayloadBuffer, message: &str) {
         Style::default().mode(Mode::Left),
         &Text::new(
             &message,
-            Point::new(0, 7),
+            Point::new(0, 8),
             MonoTextStyle::new(
-                &embedded_graphics::mono_font::iso_8859_1::FONT_4X6,
+                &embedded_graphics::mono_font::iso_8859_1::FONT_6X9,
                 BinaryColor::On,
             ),
         ),

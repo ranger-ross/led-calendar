@@ -1,3 +1,4 @@
+use anyhow::bail;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -10,6 +11,11 @@ impl Config {
     pub fn try_from_env() -> anyhow::Result<Self> {
         let config = std::fs::read_to_string("calendar.toml")?;
         let config: Config = toml::from_str(&config)?;
+
+        if config.calendar_ids.len() == 0 {
+            bail!("No calendar-ids were specified")
+        }
+
         Ok(config)
     }
 }
