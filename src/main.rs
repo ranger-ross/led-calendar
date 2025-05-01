@@ -39,6 +39,7 @@ async fn main() -> Result<()> {
             continue;
         };
 
+        println!("Adding message: {message}");
         add_message(&mut payload, &message);
     }
 
@@ -85,18 +86,9 @@ fn format_event_message(event: Event) -> Option<String> {
         return None;
     };
 
-    let now = Utc::now();
-    let duration = time.signed_duration_since(now).to_std().ok()?;
     let formatted_date = {
-        let fd = humantime::format_duration(duration);
-        let d = fd.to_string();
-        // trim off everything less than hrs
-        // TODO: handle the case < 1hr remaining
-        if let Some((prefix, _)) = d.split_once("h") {
-            format!("{}h", prefix)
-        } else {
-            d
-        }
+        let a = time.format("%Y-%m-%d %I:%M %p");
+        a.to_string()
     };
 
     let message = format!("{title} ({})", formatted_date.to_string());
