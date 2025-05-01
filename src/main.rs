@@ -32,7 +32,7 @@ async fn main() -> Result<()> {
 
     for mut event in events {
         println!(
-            "EVENT => {:?}, {:?}, {:?}",
+            "\nEVENT => {:?}, {:?}, {:?}",
             event.summary, event.start, event.recurring_event_id
         );
 
