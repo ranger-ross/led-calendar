@@ -5,6 +5,7 @@ use serde::Deserialize;
 #[serde(rename_all = "kebab-case")]
 pub struct Config {
     pub calendar_ids: Vec<String>,
+    pub days_in_advance: u64,
 }
 
 impl Config {

@@ -1,1 +1,2 @@
 calendar-ids = [] # Add your calendar IDs.
+days-in-advance = 30 # The number of days in advance to look for events

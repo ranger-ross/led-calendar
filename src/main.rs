@@ -1,5 +1,3 @@
-use core::time;
-
 use anyhow::Result;
 use badgemagic::{
     embedded_graphics::{
@@ -55,7 +53,8 @@ async fn fetch_events(
     config: &Config,
 ) -> Result<Vec<Event>> {
     let now: DateTime<Utc> = Utc::now();
-    let end: DateTime<Utc> = now + std::time::Duration::from_secs(60 * 60 * 24 * 14);
+    let end: DateTime<Utc> =
+        now + std::time::Duration::from_secs(60 * 60 * 24 * config.days_in_advance as u64);
 
     let mut events = vec![];
 
