@@ -110,14 +110,14 @@ async fn format_event_message(event: &Event) -> Option<String> {
             a.to_string()
         };
 
-        format!("{title} -- {}", formatted_date.to_string())
+        format!("{title} - {}", formatted_date.to_string())
     } else if let Some(date) = date {
         let formatted_date = {
             let a = date.format("%B %d");
             a.to_string()
         };
 
-        format!("{title} -- {}", formatted_date.to_string())
+        format!("{title} - {}", formatted_date.to_string())
     } else {
         title.to_string()
     };
