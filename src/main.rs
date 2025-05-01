@@ -87,11 +87,11 @@ fn format_event_message(event: Event) -> Option<String> {
     };
 
     let formatted_date = {
-        let a = time.format("%Y-%m-%d %I:%M %p");
+        let a = time.format("%B %d, %I:%M %p");
         a.to_string()
     };
 
-    let message = format!("{title} ({})", formatted_date.to_string());
+    let message = format!("{title} @ {}", formatted_date.to_string());
 
     return Some(message);
 }
