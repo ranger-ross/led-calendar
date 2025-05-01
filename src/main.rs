@@ -6,7 +6,7 @@ use badgemagic::{
     protocol::{Mode, PayloadBuffer, Style},
     usb_hid::Device,
 };
-use calendar3::{hyper_rustls, hyper_util, yup_oauth2, CalendarHub};
+use calendar3::CalendarHub;
 use chrono::{DateTime, Utc};
 use config::Config;
 use google_calendar3::{
@@ -16,12 +16,13 @@ use google_calendar3::{
     hyper_util::client::legacy::connect::HttpConnector,
 };
 
+mod calendar;
 mod config;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let config = Config::try_from_env()?;
-    let hub = create_client().await?;
+    let hub = calendar::create_client().await?;
 
     let events = fetch_events(&hub, &config).await?;
 
@@ -44,29 +45,6 @@ async fn main() -> Result<()> {
     Device::single()?.write(payload)?;
 
     Ok(())
-}
-
-async fn create_client() -> Result<CalendarHub<HttpsConnector<HttpConnector>>> {
-    let secret = yup_oauth2::read_application_secret("sa.json").await?;
-    let auth = yup_oauth2::InstalledFlowAuthenticator::builder(
-        secret,
-        yup_oauth2::InstalledFlowReturnMethod::HTTPRedirect,
-    )
-    .persist_tokens_to_disk("tokencache.json")
-    .build()
-    .await?;
-
-    let client = hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
-        .build(
-            hyper_rustls::HttpsConnectorBuilder::new()
-                .with_native_roots()?
-                .https_or_http()
-                .enable_http1()
-                .build(),
-        );
-    let hub = CalendarHub::new(client, auth);
-
-    return Ok(hub);
 }
 
 async fn fetch_events(
