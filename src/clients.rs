@@ -5,7 +5,7 @@ use google_calendar3::{
     hyper_util::client::legacy::connect::HttpConnector,
 };
 
-pub async fn create_client() -> Result<CalendarHub<HttpsConnector<HttpConnector>>> {
+pub async fn calendar() -> Result<CalendarHub<HttpsConnector<HttpConnector>>> {
     let secret = yup_oauth2::read_application_secret("sa.json").await?;
     let auth = yup_oauth2::InstalledFlowAuthenticator::builder(
         secret,

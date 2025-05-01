@@ -6,6 +6,7 @@ use serde::Deserialize;
 pub struct Config {
     pub calendar_ids: Vec<String>,
     pub days_in_advance: u64,
+    pub translate_japanese_to_english: bool,
 }
 
 impl Config {

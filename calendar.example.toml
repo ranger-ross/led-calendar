@@ -1,2 +1,5 @@
+# This is an example, copy this file to `calendar.toml`
+
 calendar-ids = [] # Add your calendar IDs.
 days-in-advance = 30 # The number of days in advance to look for events
+translate-japanese-to-english = true

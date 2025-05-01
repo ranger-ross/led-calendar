@@ -11,3 +11,5 @@ chrono = "0.4"
 google-calendar3 = "6.0"
 tokio = { version = "1.44", features = ["full"] }
 badgemagic = { git = "https://github.com/fossasia/badgemagic-rs", rev = "44222843", features = ["embedded-graphics"] }
+kakasi = "0.1.0"
+rust-translate = "0.1.3"

@@ -3,3 +3,5 @@
 sa.json
 tokencache.json
 calendar.toml
+
+install.sh
