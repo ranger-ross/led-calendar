@@ -10,3 +10,5 @@ google-calendar3 = "6.0.0"
 tokio = { version = "1.44", features = ["full"] }
 badgemagic = { git = "https://github.com/fossasia/badgemagic-rs", rev = "44222843", features = ["embedded-graphics"] }
 humantime = "2.2.0"
+toml = "0.8.22"
+serde = "1.0.219"

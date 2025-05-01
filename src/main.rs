@@ -8,6 +8,7 @@ use badgemagic::{
 };
 use calendar3::{hyper_rustls, hyper_util, yup_oauth2, CalendarHub};
 use chrono::{DateTime, Utc};
+use config::Config;
 use google_calendar3::{
     self as calendar3,
     api::{Event, EventDateTime},
@@ -15,25 +16,18 @@ use google_calendar3::{
     hyper_util::client::legacy::connect::HttpConnector,
 };
 
+mod config;
+
 #[tokio::main]
 async fn main() -> Result<()> {
+    let config = Config::try_from_env()?;
     let hub = create_client().await?;
 
-    let now: DateTime<Utc> = Utc::now();
-    let end: DateTime<Utc> = now + std::time::Duration::from_secs(60 * 60 * 24 * 14);
-
-    let result = hub
-        .events()
-        .list("rosssullivan101@gmail.com")
-        .time_min(now)
-        .time_max(end)
-        .single_events(true)
-        .doit()
-        .await?;
+    let events = fetch_events(&hub, &config).await?;
 
     let mut payload = PayloadBuffer::new();
 
-    for event in result.1.items.unwrap_or_default() {
+    for event in events {
         println!(
             "EVENT => {:?}, {:?}, {:?}",
             event.summary, event.start, event.recurring_event_id
@@ -73,6 +67,31 @@ async fn create_client() -> Result<CalendarHub<HttpsConnector<HttpConnector>>> {
     let hub = CalendarHub::new(client, auth);
 
     return Ok(hub);
+}
+
+async fn fetch_events(
+    hub: &CalendarHub<HttpsConnector<HttpConnector>>,
+    config: &Config,
+) -> Result<Vec<Event>> {
+    let now: DateTime<Utc> = Utc::now();
+    let end: DateTime<Utc> = now + std::time::Duration::from_secs(60 * 60 * 24 * 14);
+
+    let mut events = vec![];
+
+    for calendar_id in &config.calendar_ids {
+        let result = hub
+            .events()
+            .list(calendar_id)
+            .time_min(now)
+            .time_max(end)
+            .single_events(true)
+            .doit()
+            .await?;
+
+        events.extend(result.1.items.unwrap_or_default());
+    }
+
+    return Ok(events);
 }
 
 fn format_event_message(event: Event) -> Option<String> {
