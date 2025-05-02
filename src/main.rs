@@ -3,7 +3,7 @@ use badgemagic::{
     embedded_graphics::{
         self, geometry::Point, mono_font::MonoTextStyle, pixelcolor::BinaryColor, text::Text,
     },
-    protocol::{Mode, PayloadBuffer, Style},
+    protocol::{Mode, PayloadBuffer, Speed, Style},
     usb_hid::Device,
 };
 use calendar3::CalendarHub;
@@ -128,12 +128,12 @@ async fn format_event_message(event: &Event) -> Option<String> {
 
 fn add_message(payload: &mut PayloadBuffer, message: &str) {
     payload.add_message_drawable(
-        Style::default().mode(Mode::Left),
+        Style::default().mode(Mode::Left).speed(Speed::Fps4_5),
         &Text::new(
             &message,
             Point::new(0, 8),
             MonoTextStyle::new(
-                &embedded_graphics::mono_font::iso_8859_1::FONT_6X9,
+                &embedded_graphics::mono_font::iso_8859_1::FONT_6X12,
                 BinaryColor::On,
             ),
         ),
