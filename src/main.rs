@@ -28,8 +28,7 @@ async fn main() -> Result<()> {
 
     let events = fetch_events(&hub, &config).await?;
 
-    let mut payload = PayloadBuffer::new();
-
+    let mut messages = vec![];
     for mut event in events {
         println!(
             "\nEVENT => {:?}, {:?}, {:?}",
@@ -58,9 +57,11 @@ async fn main() -> Result<()> {
         };
 
         println!("Adding message: {message}");
-        add_message(&mut payload, &message);
+        messages.push(message);
     }
 
+    let mut payload = PayloadBuffer::new();
+    add_message(&mut payload, &messages.join("     "));
     Device::single()?.write(payload)?;
 
     Ok(())
