@@ -7,7 +7,7 @@ use badgemagic::{
     usb_hid::Device,
 };
 use calendar3::CalendarHub;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local, Utc};
 use config::Config;
 use google_calendar3::{
     self as calendar3,
@@ -106,6 +106,7 @@ async fn format_event_message(event: &Event) -> Option<String> {
 
     let message = if let Some(time) = date_time {
         let formatted_date = {
+            let time = time.with_timezone(&Local);
             let a = time.format("%B %d, %I:%M %p");
             a.to_string()
         };
